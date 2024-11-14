@@ -155,3 +155,8 @@ df.write \
 
 print("Conversion to Parquet completed and stored at:", output_path)
 
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC 46.6gb 949 obj
