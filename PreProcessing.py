@@ -74,6 +74,16 @@ raw_df.printSchema()
 
 # COMMAND ----------
 
+# MAGIC %md
+# MAGIC Steps to Infer Schema Automatically
+# MAGIC Read the JSON File with Schema Inference Enabled: Spark can infer the schema automatically if you read the JSON file directly with spark.read.json. This will allow Spark to explore the nested structure and generate a proper schema.
+# MAGIC
+# MAGIC Optimize for Large Files: For large files, such as your 120GB JSON file, it’s often helpful to sample a subset of the data to infer the schema. This way, Spark doesn’t need to load the entire dataset just to get the schema.
+# MAGIC
+# MAGIC Save and Reuse the Inferred Schema: Once the schema is inferred, you can save it to avoid re-inferring it every time, which can save processing time for large files.
+
+# COMMAND ----------
+
 from pyspark.sql import SparkSession
 
 # Initialize Spark session
@@ -95,6 +105,17 @@ print(schema.json())
 with open("inferred_schema.json", "w") as schema_file:
     schema_file.write(schema.json())
 
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC For a recursive schema inference approach, you can use libraries like spark-schema-inference, or alternatively, you can implement a recursive method to generate the schema programmatically. Unfortunately, spark-schema-inference isn’t directly available in PySpark. However, you can try using the json library to recursively extract the schema and then convert it into a StructType schema for Spark.
+# MAGIC
+# MAGIC Here’s how to create a recursive schema inference function in PySpark, which dynamically infers a schema from nested JSON data and applies it in Spark:
+# MAGIC
+# MAGIC Step 1: Recursive Function to Generate Schema
+# MAGIC This function inspects nested structures in a sample JSON record to define a PySpark schema (StructType). You can run this on a small sample of your JSON data for efficiency.
+# MAGIC
 
 # COMMAND ----------
 
@@ -137,6 +158,15 @@ inferred_schema = infer_schema_recursively(sample_data)
 print("Inferred Recursive Schema:")
 print(inferred_schema)
 
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC Steps to Generate a Schema
+# MAGIC Extract Unique Keys: Use the provided code to get all unique nested keys.
+# MAGIC Parse Keys into Schema Levels: Convert each key (like style.Color Name) into a nested structure within StructType.
+# MAGIC Create Recursive Function for Schema Generation: Build StructType objects recursively based on the unique keys.
+# MAGIC
 
 # COMMAND ----------
 
