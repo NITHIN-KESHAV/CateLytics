@@ -16,6 +16,10 @@ cleaned_df = raw_df.drop("reviewTime", "image")
 # to verify the schema after dropping the fields
 cleaned_df.printSchema()
 
+
+
+# COMMAND ----------
+
 # Defining the output path for the cleaned Parquet files
 output_parquet_path = "s3a://raw-zip/Parquet//cleaned_parquet_files/"
 
@@ -23,4 +27,3 @@ output_parquet_path = "s3a://raw-zip/Parquet//cleaned_parquet_files/"
 cleaned_df.write.mode("overwrite").parquet(output_parquet_path)
 
 print("Parquet files successfully written to:", output_parquet_path)
-
