@@ -62,6 +62,70 @@ df.show(5)
 
 # COMMAND ----------
 
+if 'spark' in locals():
+    spark.stop()
+    print("Spark session stopped.")
+
+
+# COMMAND ----------
+
+import json
+from pyspark.sql import SparkSession
+from pyspark.sql.functions import col, udf
+from pyspark.sql.types import StringType
+
+# Initialize Spark session
+# spark = SparkSession.builder.appName("Delete Fields and Save to Parquet").getOrCreate()
+
+# Define the S3 paths
+input_file_path = "s3a://raw-zip/All_Amazon_Review.json.gz/unzipped/All_Amazon_Review.json"
+output_s3_path = "s3a://your-bucket-name/filtered_amazon_reviews.parquet"  # Change to your S3 bucket and path
+
+# List of fields to delete, specify as fully qualified names (for nested fields use dot notation, e.g., "style.Color")
+fields_to_delete = ["image", "reviewTime", "reviewerName"]
+
+# Read JSON file as a DataFrame with each row as a JSON string (no schema inference)
+raw_df = spark.read.text(input_file_path)
+
+# Function to remove specific keys from JSON data
+def delete_fields_from_json(json_string):
+    try:
+        data = json.loads(json_string)
+        for field in fields_to_delete:
+            _delete_nested_key(data, field.split("."))
+        return json.dumps(data)
+    except json.JSONDecodeError:
+        return json_string  # Return as-is if there's an issue with JSON parsing
+
+# Recursive helper function to delete a nested key
+def _delete_nested_key(data, keys):
+    if len(keys) == 1:
+        if isinstance(data, dict) and keys[0] in data:
+            del data[keys[0]]
+    else:
+        if isinstance(data, dict) and keys[0] in data:
+            _delete_nested_key(data[keys[0]], keys[1:])
+
+# Register the UDF
+delete_fields_udf = udf(delete_fields_from_json, StringType())
+
+# Apply the UDF to delete specified fields
+filtered_df = raw_df.withColumn("filtered_value", delete_fields_udf(col("value")))
+
+# Parse the JSON strings back into structured JSON columns
+final_df = spark.read.json(filtered_df.select("filtered_value").rdd.map(lambda row: row["filtered_value"]))
+
+# Save the final DataFrame to Parquet format in S3
+final_df.write.mode("overwrite").parquet(output_s3_path)
+
+print(f"Data saved to {output_s3_path}")
+
+# Stop the Spark session
+spark.stop()
+
+
+# COMMAND ----------
+
  # 2. Check for Missing Values
 print("Count of Missing Values per Column:")
 missing_values = df.select([(count(when(col(c).isNull() | isnan(c), c)) / count('*')).alias(c) for c in df.columns])
