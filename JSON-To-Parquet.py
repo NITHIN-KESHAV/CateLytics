@@ -142,8 +142,8 @@ spark = SparkSession.builder \
     .getOrCreate()
 
 # Input and output paths
-input_path = "s3a://raw-zip/All_Amazon_Review.json.gz/unzipped/All_Amazon_Review.json"
-output_path = "s3a://raw-zip/Parquet/processed-data/All_Amazon_Review.parquet"
+input_path = "s3a://raw-zip-final/All_Amazon_Review.json.gz/unzipped/All_Amazon_Review.json"
+output_path = "s3a://raw-zip-final/Parquet/processed-data/All_Amazon_Review.parquet"
 
 # Read the JSON file with the predefined schema
 df = spark.read.schema(schema).json(input_path)

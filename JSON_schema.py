@@ -8,7 +8,7 @@ from pyspark.sql.types import ArrayType, StringType
 spark = SparkSession.builder.appName("Extracting Ordered Nested Keys").getOrCreate()
 
 # Defining the file input path (S3 path)
-input_file_path = "s3a://raw-zip/All_Amazon_Review.json.gz/unzipped/All_Amazon_Review.json"
+input_file_path = "s3a://raw-zip-final/All_Amazon_Review.json.gz/unzipped/All_Amazon_Review.json"
 
 # Reading the JSON file as a DataFrame with each row as a JSON string without schema inference.
 raw_df = spark.read.text(input_file_path)
