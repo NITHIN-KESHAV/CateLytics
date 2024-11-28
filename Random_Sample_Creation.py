@@ -6,7 +6,7 @@ from pyspark.sql import SparkSession
 spark = SparkSession.builder.appName("Sample Rows from Multiple Parquet Files").getOrCreate()
 
 # Defining the S3 folder path containing Parquet files
-parquet_folder_path = "s3a://raw-zip/Parquet/cleaned_parquet_files/"
+parquet_folder_path = "s3://raw-zip-final/Parquet/processed-data/All_Amazon_Review.parquet/"
 
 # Loading all valid Parquet files and extracting file paths
 files_df = spark.read.format("parquet").load(parquet_folder_path).select("_metadata.file_path").distinct()
