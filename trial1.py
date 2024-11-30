@@ -218,4 +218,39 @@ print(f"Total number of rows in all Parquet files: {total_rows}")
 
 # COMMAND ----------
 
+from pyspark.sql import SparkSession
+
+# Initializing the Spark session
+spark = SparkSession.builder.appName("to check schema").getOrCreate()
+
+# Defining the input Parquet folder path
+parquet_folder_path = "s3://raw-zip-final/Parquet/deduplicated_files/"
+
+# Loading the Parquet files
+df = spark.read.format("parquet").load(parquet_folder_path)
+
+# COMMAND ----------
+
+# Set the S3 bucket path
+s3_bucket_path = "s3://your-bucket-name/path-to-parquet-files/"
+
+# Read Parquet files into a DataFrame
+df = spark.read.parquet(s3_bucket_path)
+
+# Display the schema to ensure the data is loaded correctly
+df.printSchema()
+
+# Random sampling of data
+# fraction: fraction of rows to sample (e.g., 0.1 for 10%)
+# seed: random seed for reproducibility
+random_sample_df = df.sample(fraction=0.1, seed=12345)
+
+# Display the randomly sampled data
+random_sample_df.show()
+
+# Save the sampled data back to S3 if needed
+sampled_output_path = "s3://your-bucket-name/random-sampled-data/"
+random_sample_df.write.mode("overwrite").parquet(sampled_output_path)
+
+print(f"Randomly sampled data saved to {sampled_output_path}")
 
