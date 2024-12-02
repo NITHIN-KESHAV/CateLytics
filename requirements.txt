@@ -1,7 +1,11 @@
 boto3==1.26.137
 pyspark==3.3.2
 pandas==1.5.3
-numpy==1.24.2
 pytest==7.3.1
 black==23.3.0
 pylint==2.17.3
+transformers==4.18.0
+weaviate-client
+mock==4.0.3
+tqdm==4.64.0
+
