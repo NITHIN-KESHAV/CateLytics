@@ -6,6 +6,8 @@ import logging
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
+USE_LLM = True  # Toggle LLM usage
+
 def main():
     weaviate_url = "http://50.18.99.196:8080"  # Replace with your EC2 instance IP
     nlu = NLUModule()
@@ -24,15 +26,22 @@ def main():
             logging.info("User ended the conversation.")
             break
 
-        nlu_result = nlu.process_input(user_input)
-        sentiment = sentiment_analyzer.analyze(user_input)
-        relevant_data = rag.retrieve_relevant_data(user_input)
-
-        # Handle vague queries with follow-up questions
-        if nlu_result["intent"] == "clarification_request":
-            response = "Could you clarify what you'd like me to show? For example, 'Show me reviews for headphones.'"
+        asin = None
+        if "asin:" in user_input.lower():
+            parts = user_input.lower().split("asin:")
+            query = parts[0].strip() if len(parts[0].strip()) > 0 else "Show reviews for ASIN"
+            asin = parts[1].strip() if len(parts) > 1 else None
         else:
-            response = rag.generate_response(user_input, relevant_data, nlu_result["intent"])
+            query = user_input.strip()
+
+        relevant_data = rag.retrieve_relevant_data(query=query, asin=asin)
+        nlu_result = nlu.process_input(query)
+        sentiment = sentiment_analyzer.analyze(query)
+
+        if nlu_result["intent"] == "recommendation" and not asin:
+            response = rag.highlight_best_product(relevant_data)
+        else:
+            response = rag.generate_response(query, relevant_data, nlu_result["intent"])
 
         memory.add_interaction(user_input, response)
         

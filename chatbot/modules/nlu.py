@@ -13,7 +13,7 @@ class NLUModule:
     def process_input(self, text):
         try:
             embedding = self.model.encode(text)
-            intent = self._classify_intent(embedding)
+            intent = self._classify_intent(text)
             entities = self._extract_entities(text)
             logging.info(f"Processed input: intent={intent}, entities={entities}")
             return {"intent": intent, "entities": entities, "embedding": embedding}
@@ -21,10 +21,14 @@ class NLUModule:
             logging.error(f"Error processing input: {str(e)}")
             return {"intent": "general_query", "entities": [], "embedding": None}
 
-    def _classify_intent(self, embedding):
-        # Placeholder for intent classification
-        return self.intents[0]
+    def _classify_intent(self, text):
+        if "best" in text.lower():
+            return "recommendation"
+        if "review" in text.lower():
+            return "review_search"
+        return "product_info"
 
     def _extract_entities(self, text):
-        # Placeholder for entity extraction
+        if "product" in text.lower():
+            return ["product"]
         return []
