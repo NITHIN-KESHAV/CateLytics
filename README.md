@@ -8,10 +8,10 @@ product categories based on customer reviews. By focusing on the
 feelings and remarks of the users, it seeks to uncover the hidden
 categories of products, that may not fall into the conventional
 groupings, offering a more intuitive understanding of products
-through the user reviews. Spark will be leveraged to perform the
+through the user reviews. Spark has been leveraged to perform
 majority of the data operations like Exploratory Data Analysis,
-Data Preprocessing and also Data Transformations. Spark will
-aid in working with and analyze huge amounts of unstructured
+Data Preprocessing and also Data Transformations. Spark aided 
+in working with and analyze huge amounts of unstructured
 data; this, in turn, helps customers find a product that fits their
 needs for highly regarded goods. More so, CateLytics wishes to
 make customers’ choices easier, rather than relying on traditional
