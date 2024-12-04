@@ -119,7 +119,7 @@ processed_df.explain(True)
 # COMMAND ----------
 
 # Saving the resulting DataFrame back to S3
-output_path = "s3://raw-zip-final/Parquet/Glue_Final_Processed_Data/"
+output_path = "s3://raw-zip-final/Parquet/Final_Processed_Data/"
 processed_df.write.mode("overwrite").parquet(output_path)
 
 print(f"Processing complete! Processed data saved to: {output_path}")
