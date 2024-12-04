@@ -16,4 +16,6 @@ data; this, in turn, helps customers find a product that fits their
 needs for highly regarded goods. More so, CateLytics wishes to
 make customers’ choices easier, rather than relying on traditional
 product descriptions or ratings, to an educated, moral purchase
-based on actual user feedback and sentiment.
+based on actual user feedback and sentiment by using natural language 
+queries through a Chatbot.
+
