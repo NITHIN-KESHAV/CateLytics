@@ -37,7 +37,7 @@ non_null_counts = (
     .reset_index()
 )
 
-# Renaming the columns for clarity
+# Renaming the columns for better undersatnding
 non_null_counts.columns = ["style_column", "non_null_count"]
 
 # Sorting the results by non-null counts in descending order

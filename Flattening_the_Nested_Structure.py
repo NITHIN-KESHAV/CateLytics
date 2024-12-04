@@ -62,13 +62,13 @@ try:
     # Applying the transformation
     transformed_df = extract_all_keys_values(updated_df)
     
-    # Showing a few rows that have Size and Color
+    # Let us see a few rows that have Size and Color
     print("\nRows with Size and Color:")
     transformed_df.filter(col("style").contains("Size")).select(
         "style", "style_Size", "style_Color"
     ).show(5, truncate=False)
     
-    # Showing a few rows that have Format
+    # Seeing a few rows that have Format
     print("\nRows with Format:")
     transformed_df.filter(col("style").contains("Format")).select(
         "style", "style_Format"
@@ -87,7 +87,6 @@ def extract_all_keys_values(updated_df):
         # Collecting distinct style column values to extract all possible keys
         style_rows = updated_df.select("style").distinct().collect()
         
-        # Dictionary to store unique keys
         unique_keys = {}
 
         # Iterating through rows to find all the keys
@@ -96,7 +95,7 @@ def extract_all_keys_values(updated_df):
                 try:
                     json_dict = json.loads(row.style)
                     for k in json_dict.keys():
-                        unique_keys[k] = k  # Storing the original keys
+                        unique_keys[k] = k  
                 except Exception as parse_err:
                     print(f"Error parsing JSON: {parse_err}")
                     continue
@@ -126,7 +125,6 @@ try:
     # Applying the function to transform the DataFrame
     transformed_df = extract_all_keys_values(updated_df)
 
-    # Showing the transformed DataFrame
     print("\nTransformed data with extracted values:")
     transformed_df.display(truncate=False)
 

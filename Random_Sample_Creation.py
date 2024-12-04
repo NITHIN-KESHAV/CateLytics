@@ -24,7 +24,7 @@ for file_path in selected_files:
     df = spark.read.format("parquet").load(file_path)
     
     # Sampling rows from each file
-    sample_df = df.sample(withReplacement=False, fraction=0.1, seed=42).limit(10)  # Adjust fraction to ensure sampling
+    sample_df = df.sample(withReplacement=False, fraction=0.1, seed=42).limit(10)
     
     # Combining the sampled rows
     if final_sample_df is None:
@@ -32,7 +32,7 @@ for file_path in selected_files:
     else:
         final_sample_df = final_sample_df.union(sample_df)
 
-# Limiting the final sample to 1000 rows (if more rows are sampled)
+# Limiting the final sample to 1000 rows
 final_sample_df = final_sample_df.limit(1000)
 
 display(final_sample_df)

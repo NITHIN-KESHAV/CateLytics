@@ -2,14 +2,14 @@
 
 # This script deletes an EC2 instance using AWS CLI
 
-# Set the instance ID to delete
-INSTANCE_ID="i-017cc5f88d0fe23b8"  # Replace with your actual instance ID
+# Setting up the instance ID that needs to be deleted
+INSTANCE_ID="i-017cc5f88d0fe23b8"  
 
-# Terminate the EC2 instance
+# Terminating the EC2 instance
 echo "Terminating EC2 instance with ID: $INSTANCE_ID..."
 aws ec2 terminate-instances --instance-ids $INSTANCE_ID
 
-# Wait for the instance to terminate
+# Waiting for the instance to terminate
 echo "Waiting for instance to be terminated..."
 aws ec2 wait instance-terminated --instance-ids $INSTANCE_ID
 
