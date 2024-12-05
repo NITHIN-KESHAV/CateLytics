@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  weaviate:
+    image: semitechnologies/weaviate:latest
+    container_name: weaviate
+    ports:
+      - "8080:8081"
+    environment:
+      - AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED=true
+      - PERSISTENCE_DATA_PATH=/var/lib/weaviate
+      - PROMETHEUS_MONITORING_ENABLED=true
+      - ENABLE_MODULES=text2vec-contextionary
+      - CLUSTER_HOSTNAME=weaviate
+    volumes:
+      - weaviate_data:/var/lib/weaviate
+
+  console:
+    image: semitechnologies/console:latest
+    container_name: weaviate_console
+    ports:
+      - "3000:3000"
+    environment:
+      - BACKEND_URL=http://weaviate:8080
+    depends_on:
+      - weaviate
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - prometheus_data:/prometheus
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3001:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    depends_on:
+      - prometheus
+
+volumes:
+  weaviate_data:
+  prometheus_data:
+  grafana_data:
+
