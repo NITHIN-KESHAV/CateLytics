@@ -1,0 +1,70 @@
+EC2 Instance: weaviate_sg
+
+# To connect:
+ssh -i "C:\Users\samhi\OneDrive - sjsu.edu\Documents\sjsu\Fall_24\Big Data\Project\weaviate_sg.pem" ubuntu@50.18.99.196
+
+# Upgrade ubuntu:
+sudo apt update && sudo apt upgrade -y
+
+
+# Docker Installation:
+sudo apt install apt-transport-https ca-certificates curl software-properties-common -y
+
+# Docker's official GPG key
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+
+# Docker repository
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+# Update package index
+sudo apt update
+
+# Installing Docker
+sudo apt install docker-ce -y
+
+# Verifying Docker installation
+sudo systemctl status docker
+
+#To start docker on boot
+sudo systemctl enable docker
+
+# Installing Docker compass
+sudo apt install docker-compose -y
+
+#creating .yml file
+nano doceker-compose.yml
+
+# To initiate the weaviate container:
+docker-compose up -d
+ 
+# To list ports running
+docker ps
+
+# to check the port functioning 
+curl http://50.18.99.196:8080/v1/.well-known/ready
+
+#To check Weaviate port and existing classes
+curl http://50.18.99.196:8080/v1/meta
+curl -X GET "http://50.18.99.196:8080/v1/schema"
+curl http://50.18.99.196:8080/metrics
+
+
+# Stopping and remove all containers
+sudo docker stop $(sudo docker ps -aq)
+sudo docker rm $(sudo docker ps -aq)
+
+# to remove all existing volumes
+sudo docker volume rm $(sudo docker volume ls -q)
+
+#  directory with proper permissions for weaviate setup
+sudo mkdir -p /var/lib/weaviate-test 
+sudo chmod 777 /var/lib/weaviate-test
+
+
+# IP Address ports defined:
+http://50.18.99.196:8080 -Weaviate Endpoint
+http://50.18.99.196:8082 -Weaviate Console
+http://50.18.99.196:9090 -Prometheus
+http://50.18.99.196:3000 -Weaviate API
+
+
