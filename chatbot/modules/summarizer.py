@@ -6,7 +6,7 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 
 
 class Summarizer:
-    def __init__(self, model_path="models/fine_tuned_t8"):
+    def __init__(self, model_path="models/fine_tuned_t5"):
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         logging.info(f"Using device: {self.device}")
         self.tokenizer = T5Tokenizer.from_pretrained(model_path)

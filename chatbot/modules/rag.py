@@ -9,8 +9,8 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 class RAGModule:
     def __init__(self, weaviate_url, model_path="models/fine_tuned_t8"):
         self.knowledge = WeaviateKnowledge(weaviate_url)
-        self.model = SentenceTransformer("all-MiniLM-L6-v2")  # For semantic search
-        self.summarizer = Summarizer(model_path=model_path)  # Use fine-tuned summarizer
+        self.model = SentenceTransformer("all-MiniLM-L6-v2")  #  semantic search
+        self.summarizer = Summarizer(model_path=model_path)  #  fine-tuned summarizer
         self.last_response = None
         logging.info(f"Initialized RAG module with Weaviate URL: {weaviate_url}")
 
