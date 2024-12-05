@@ -19,3 +19,23 @@ product descriptions or ratings, to an educated, moral purchase
 based on actual user feedback and sentiment by using natural language 
 queries through a Chatbot.
 
+The codes in this repository have been organized in folders based on 
+the various phases and components in the project:
+CateLytics - Contains Python environment dependencies for RAG & LLM Integration
+EDA - Contains all the files related to Data Exploration and Data Understanding
+MISC - Contains all the MISC codes related to sample creation, testing, validation and access checks
+Preprocessing - Contains all the codes related to data cleaning, data transformation and data preparation
+Vector Database - Contains the codes and files related to the Vector Database setup, processing and data ingestion into Weaviate
+chatbot - Contains codes related to RAG & LLM integration
+scripts - Contains Python environment dependencies for RAG & LLM integration
+
+
+
+
+
+
+
+
+
+
+
