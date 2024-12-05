@@ -163,3 +163,4 @@ cython_debug/
 .DS_Store
 unzip.pem
 chatbot/models/fine_tuned_t5/model.safetensors
+chatbot/models/fine_tuned_t8/model.safetensors
