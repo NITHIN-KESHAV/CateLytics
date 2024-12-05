@@ -4,16 +4,6 @@ from pyspark.sql.functions import col, count, isnan, when, length, avg, desc, ex
 import matplotlib.pyplot as plt
 import pandas as pd
 
-# # Initialize Spark session with S3 access (set AWS credentials if required)
-# spark = SparkSession.builder \
-#     .appName("S3DataAnalysis") \
-#     .config("spark.hadoop.fs.s3a.impl", "org.apache.hadoop.fs.s3a.S3AFileSystem") \
-#     .config("spark.hadoop.fs.s3a.aws.credentials.provider", "com.amazonaws.auth.DefaultAWSCredentialsProviderChain") \
-#     .getOrCreate()
-
-# # Load Data from S3
-# s3_path = "s3://raw-zip/All_Amazon_Review.json.gz/unzipped/All_Amazon_Review.json"
-# df = spark.read.json(s3_path, multiLine=True)
 
 # COMMAND ----------
 
@@ -32,21 +22,6 @@ df = spark.read.json(s3_path)
 df
 
 # COMMAND ----------
-
-# List contents of your S3 bucket directly
-bucket_name = "raw-zip"
-path = f"s3a://{bucket_name}/"
-
-# List the contents of the S3 bucket
-dbutils.fs.ls(path)
-
-
-# COMMAND ----------
-
-s3_path = "s3a://raw-zip/All_Amazon_Review.json.gz"  # or whatever the exact path is based on your S3 structure
-
-df = spark.read.json(s3_path)
-
 
 print("Schema of the Data:")
 df.printSchema()
@@ -74,8 +49,6 @@ from pyspark.sql import SparkSession
 from pyspark.sql.functions import col, udf
 from pyspark.sql.types import StringType
 
-# Initialize Spark session
-# spark = SparkSession.builder.appName("Delete Fields and Save to Parquet").getOrCreate()
 
 # Define the S3 paths
 input_file_path = "s3a://raw-zip/All_Amazon_Review.json.gz/unzipped/All_Amazon_Review.json"
@@ -126,7 +99,46 @@ spark.stop()
 
 # COMMAND ----------
 
- # 2. Check for Missing Values
+#checking duplicates combining multiple columns
+
+from pyspark.sql.functions import col, count
+
+# Group by the combination of reviewerID, asin, and unixReviewTime and count occurrences
+duplicate_check = df.groupBy("reviewerID", "asin", "unixReviewTime") \
+                    .agg(count("*").alias("count")) \
+                    .filter(col("count") > 1)
+
+# Show the rows that have duplicates
+duplicate_check.show()
+
+# Count the total number of duplicate rows
+total_duplicates = duplicate_check.agg({"count": "sum"}).collect()[0][0]
+print(f"Total duplicate rows based on reviewerID + asin + unixReviewTime: {total_duplicates}")
+
+# COMMAND ----------
+
+from pyspark.sql.functions import col, count
+
+# Step 1: Identify duplicates based on reviewerID, asin, and unixReviewTime
+duplicate_check = df.groupBy("reviewerID", "asin", "unixReviewTime") \
+                    .agg(count("*").alias("count")) \
+                    .filter(col("count") > 1)
+
+# Step 2: Extract keys (reviewerID, asin, unixReviewTime) that have duplicates
+duplicates_keys = duplicate_check.select("reviewerID", "asin", "unixReviewTime").distinct()
+
+# Step 3: Anti-join to keep only unique rows
+df_no_duplicates = df.join(duplicates_keys, ["reviewerID", "asin", "unixReviewTime"], "anti")
+
+# Step 4: Save the resulting DataFrame without duplicates to a new Parquet file
+output_path = "s3://your-bucket/cleaned_parquet_data_no_duplicates/"
+df_no_duplicates.write.mode("overwrite").parquet(output_path)
+
+print(f"DataFrame without duplicates has been saved to {output_path}")
+
+# COMMAND ----------
+
+ #  Checking for Missing Values
 print("Count of Missing Values per Column:")
 missing_values = df.select([(count(when(col(c).isNull() | isnan(c), c)) / count('*')).alias(c) for c in df.columns])
 missing_values.show()
@@ -135,7 +147,7 @@ missing_values.show()
 
 # COMMAND ----------
 
-# 3. Summary Statistics for Numeric Columns
+# Summary Statistics for Numeric Columns
 print("Summary Statistics for Numeric Columns:")
 numeric_summary = df.describe(["overall", "vote", "review_length"])  # Include numeric columns as per your dataset
 numeric_summary.show()
@@ -144,7 +156,7 @@ numeric_summary.show()
 
 # COMMAND ----------
 
-# 4. Distribution Analysis - Visualize using Matplotlib
+# Distribution Analysis - Visualize using Matplotlib
 
 # Convert to Pandas for plotting (only for small samples to avoid memory issues)
 df_sample = df.select("overall", "vote", "sentiment", "review_length").sample(fraction=0.1).toPandas()
@@ -169,7 +181,7 @@ plt.show()
 
 # COMMAND ----------
 
-# 5. Basic Text Data Analysis (for 'reviewText' Column)
+# Basic Text Data Analysis (for 'reviewText' Column)
 # Calculate Average Length of Reviews
 avg_length = df.select(avg(length(col("reviewText"))).alias("average_review_length"))
 avg_length.show()

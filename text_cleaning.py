@@ -8,6 +8,22 @@ import re
 spark = SparkSession.builder.appName("TextCleaningAndDeterministicUUID").getOrCreate()
 
 # Define input and output paths
+input_parquet_path = "s3://raw-zip-final/Parquet/Final_Data/"  # Change to your Parquet file location
+
+# Load the Parquet data
+df = spark.read.parquet(input_parquet_path)
+
+# COMMAND ----------
+
+from pyspark.sql import SparkSession
+from pyspark.sql.functions import col, regexp_replace, udf, sha2, concat_ws, trim
+from pyspark.sql.types import StringType
+import re
+
+# Initialize Spark Session (if not already running)
+spark = SparkSession.builder.appName("TextCleaningAndDeterministicUUID").getOrCreate()
+
+# Define input and output paths
 input_parquet_path = "s3://raw-zip-final/Parquet/filtered_parquet_files/"  # Change to your Parquet file location
 output_parquet_path = "s3://raw-zip-final/Parquet/deduplicated_Cleaned_files/"  # Change to your desired output location
 
@@ -60,10 +76,6 @@ print(f"Cleaned data with UUIDs written to {output_parquet_path}")
 # COMMAND ----------
 
 cleaned_df.display()
-
-# COMMAND ----------
-
-
 
 # COMMAND ----------
 
@@ -191,6 +203,104 @@ print(f"Processing complete! Processed data saved to: {output_path}")
 import nltk
 nltk.download('stopwords')
 nltk.download('wordnet')
+
+
+# COMMAND ----------
+
+# MAGIC %pip install nltk spacy
+# MAGIC
+
+# COMMAND ----------
+
+import nltk
+nltk.download('stopwords')
+nltk.download('punkt')
+
+import spacy
+!python -m spacy download en_core_web_sm
+
+
+# COMMAND ----------
+
+df = spark.read.parquet("s3://raw-zip-final/Parquet/Final_Data/")
+
+
+# COMMAND ----------
+
+df.display(10)
+
+# COMMAND ----------
+
+!pip install nltk
+from nltk.corpus import stopwords
+from spacy.lang.en import English
+import string
+
+# Load Spacy English tokenizer
+nlp = English()
+nlp.add_pipe('lemmatizer', config={"mode": "lookup"})  # Use lookup lemmatizer
+stop_words = set(stopwords.words('english'))
+
+def clean_text(text):
+    # Tokenization
+    tokens = nltk.word_tokenize(text)
+    # Remove stopwords and punctuations
+    tokens = [token for token in tokens if token.lower() not in stop_words and token not in string.punctuation]
+    # Lemmatization
+    lemmatized = [nlp(token)[0].lemma_ for token in tokens]
+    return ' '.join(lemmatized)
+
+
+# COMMAND ----------
+
+from pyspark.sql.functions import udf
+from pyspark.sql.types import StringType
+
+clean_udf = udf(clean_text, StringType())
+
+# Applying the UDF
+df = df.withColumn("reviewText_cleaned", clean_udf(df["reviewText_cleaned"]))
+df = df.withColumn("summary_cleaned", clean_udf(df["summary_cleaned"]))
+
+
+# COMMAND ----------
+
+import requests
+import json
+from typing import Dict, Optional, List
+import pandas as pd
+
+class WeaviateConnection:
+    def __init__(self, ec2_ip: str = "50.18.99.196", port: str = "8080"):
+        """
+        Initialize connection to Weaviate running in Docker on EC2.
+        
+        This method sets up the base URL and headers for the Weaviate connection.
+        The EC2 IP address and port are used to construct the base URL, which will
+        be used for all API calls to Weaviate.
+        
+        :param ec2_ip: The public IP of the EC2 instance where Weaviate is running.
+        :param port: The port on which Weaviate's HTTP API is accessible (default is 8080).
+        """
+        self.base_url = f"http://{ec2_ip}:{port}"
+        self.headers = {
+            "Content-Type": "application/json"
+        }
+        
+
+
+# COMMAND ----------
+
+connection = WeaviateConnection(ec2_ip="50.18.99.196", port="8080")
+
+
+# COMMAND ----------
+
+print(connection.base_url)
+# Output: http://50.18.99.196:8080
+
+print(connection.headers)
+# Output: {'Content-Type': 'application/json'}
 
 
 # COMMAND ----------
