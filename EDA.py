@@ -7,7 +7,7 @@ import pandas as pd
 
 # COMMAND ----------
 
-# Initialize SparkSession with S3 access
+# Initializing SparkSession with S3 access
 spark = SparkSession.builder \
     .appName("S3DataAnalysis") \
     .config("spark.hadoop.fs.s3a.impl", "org.apache.hadoop.fs.s3a.S3AFileSystem") \
@@ -23,6 +23,7 @@ df
 
 # COMMAND ----------
 
+#printing the schema
 print("Schema of the Data:")
 df.printSchema()
 
