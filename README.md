@@ -22,7 +22,7 @@ The code repository is organized into the following folders, each representing d
 - Contains code related to data cleaning, data transformation, and data preparation.
 
 ### 5. **Vector Database**
-- Includes code and files related to the Vector Database setup, processing, and data ingestion into **Weaviate**.
+- Includes code and files related to the Vector Database setup in EC2 instance, processing, and data ingestion into **Weaviate**.
 
 ### 6. **chatbot**
 - Contains code related to RAG & LLM integration for building the Chatbot.
@@ -36,10 +36,9 @@ The code repository is organized into the following folders, each representing d
 
 ## Key Features
 - **Sentiment Analysis:** Extracts and analyzes user sentiments from reviews.
-- **Product Categorization:** Uses machine learning models and NLP techniques to categorize products.
-- **Natural Language Processing:** Employs chatbots to allow users to search and find product information based on reviews.
-- **Data Scalability:** Utilizes Spark for handling large volumes of data effectively.
-- **Intelligent Recommendations:** Aims to provide more informed, data-driven product recommendations.
+- **Natural Language Processing:** Employs a chatbot to allow users to search and find product information based on reviews.
+- **Data Scalability:** Utilizes Spark and MapReduce for handling large volumes of data.
+- **Intelligent Recommendations:** Aims to provide more informed, review-based product summarisation.
 
 ## Getting Started
 1. Clone this repository to your local machine.
