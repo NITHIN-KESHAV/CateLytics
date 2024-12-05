@@ -1,41 +1,53 @@
-# DATA-228-Group-Project - CateLytics
+# CateLytics: Review-Driven Categorization using Amazon Data
 
-CateLytics: Review-Driven Categorization using
-Amazon Data” is a Big Data project designed to categorize
-Amazon products based on insights derived from user reviews.
-The goal is to ascertain the trends around customer-centric
-product categories based on customer reviews. By focusing on the
-feelings and remarks of the users, it seeks to uncover the hidden
-categories of products, that may not fall into the conventional
-groupings, offering a more intuitive understanding of products
-through the user reviews. Spark has been leveraged to perform
-majority of the data operations like Exploratory Data Analysis,
-Data Preprocessing and also Data Transformations. Spark aided 
-in working with and analyze huge amounts of unstructured
-data; this, in turn, helps customers find a product that fits their
-needs for highly regarded goods. More so, CateLytics wishes to
-make customers’ choices easier, rather than relying on traditional
-product descriptions or ratings, to an educated, moral purchase
-based on actual user feedback and sentiment by using natural language 
-queries through a Chatbot.
+## Project Overview
+**CateLytics** is a Big Data project designed to categorize Amazon products based on insights derived from user reviews. The goal is to identify trends around customer-centric product categories by analyzing user reviews. This approach uncovers hidden product categories that may not align with conventional groupings, providing a more intuitive understanding of products through user feedback.
 
-The codes in this repository have been organized in folders based on 
-the various phases and components in the project:
-CateLytics - Contains Python environment dependencies for RAG & LLM Integration
-EDA - Contains all the files related to Data Exploration and Data Understanding
-MISC - Contains all the MISC codes related to sample creation, testing, validation and access checks
-Preprocessing - Contains all the codes related to data cleaning, data transformation and data preparation
-Vector Database - Contains the codes and files related to the Vector Database setup, processing and data ingestion into Weaviate
-chatbot - Contains codes related to RAG & LLM integration
-scripts - Contains Python environment dependencies for RAG & LLM integration
+The project leverages **Spark** to perform data operations such as Exploratory Data Analysis (EDA), data preprocessing, and transformations. By processing and analyzing large amounts of unstructured data, it helps customers find suitable products based on real user feedback and sentiment, rather than traditional product descriptions or ratings. Additionally, CateLytics aims to assist customers in making informed and ethical purchasing decisions using natural language queries through an integrated Chatbot.
 
+## Project Structure
 
+The code repository is organized into the following folders, each representing different phases and components of the project:
 
+### 1. **CateLytics**
+- Contains Python environment dependencies for RAG & LLM Integration.
 
+### 2. **EDA**
+- Contains all the files related to Data Exploration and Data Understanding.
 
+### 3. **MISC**
+- Includes miscellaneous code for sample creation, testing, validation, and access checks.
 
+### 4. **Preprocessing**
+- Contains code related to data cleaning, data transformation, and data preparation.
 
+### 5. **Vector Database**
+- Includes code and files related to the Vector Database setup, processing, and data ingestion into **Weaviate**.
 
+### 6. **chatbot**
+- Contains code related to RAG & LLM integration for building the Chatbot.
 
+### 7. **scripts**
+- Includes Python environment dependencies for RAG & LLM integration.
 
+## How to Use This Repository
+- Follow the documentation and examples provided in each folder to set up and run each phase of the project.
+- Ensure all dependencies in the `CateLytics` and `scripts` folders are installed to run the integration components.
 
+## Key Features
+- **Sentiment Analysis:** Extracts and analyzes user sentiments from reviews.
+- **Product Categorization:** Uses machine learning models and NLP techniques to categorize products.
+- **Natural Language Processing:** Employs chatbots to allow users to search and find product information based on reviews.
+- **Data Scalability:** Utilizes Spark for handling large volumes of data effectively.
+- **Intelligent Recommendations:** Aims to provide more informed, data-driven product recommendations.
+
+## Getting Started
+1. Clone this repository to your local machine.
+2. Install dependencies as listed in the `CateLytics` and `scripts` folders.
+3. Navigate to the `EDA` folder for initial data analysis and insights.
+4. Move on to the `Preprocessing` and `Vector Database` folders for data preparation and setup.
+5. Integrate the `chatbot` component for a more interactive user experience.
+
+---
+
+For any questions or additional information, please contact the project team.
