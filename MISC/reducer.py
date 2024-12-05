@@ -7,7 +7,7 @@ def reducer():
     
     for line in sys.stdin:
         try:
-            # Parse each line as JSON (assuming each line is valid JSON)
+            # Parse each line as JSON 
             record = json.loads(line.strip())
             combined_data.append(record)
         except json.JSONDecodeError:
