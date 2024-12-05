@@ -1,0 +1,197 @@
+# Databricks notebook source
+pip install sentence-transformers
+
+
+# COMMAND ----------
+
+# MAGIC %pip install weaviate-client
+
+# COMMAND ----------
+
+# MAGIC %pip install protobuf==3.20.0
+# MAGIC %pip install weaviate-client
+
+# COMMAND ----------
+
+pip install --upgrade protobuf
+
+
+# COMMAND ----------
+
+!pip uninstall weaviate
+!pip install weaviate-client
+
+
+# COMMAND ----------
+
+pip install --upgrade pip setuptools importlib-metadata
+
+
+# COMMAND ----------
+
+pip install --upgrade ipywidgets
+
+
+# COMMAND ----------
+
+# MAGIC %restart_python 
+
+# COMMAND ----------
+
+from pyspark.sql import SparkSession
+from pyspark.sql.functions import col
+from sentence_transformers import SentenceTransformer
+import pandas as pd
+import weaviate
+import numpy as np
+
+# Initialize a Spark session
+spark = SparkSession.builder \
+    .appName("CheckingEmbeddingsToWeaviate") \
+    .getOrCreate()
+
+# S3 path for input Parquet files
+input_parquet_path = "s3://raw-zip-final/Parquet/flattened_transformed_files/"   
+
+# Load the Parquet file into a Spark DataFrame
+df = spark.read.parquet(input_parquet_path)
+
+# Select only the relevant columns (reviewText and summary)
+df_text = df.select("reviewText", "summary")
+
+# Take a sample of the data (2 rows for testing)
+df_sample = df_text.limit(2)
+sample_data = df_sample.collect()
+
+# Print the sample data to verify
+print("Sample Data:")
+for row in sample_data:
+    print(f"ReviewText: {row['reviewText']}, Summary: {row['summary']}")
+
+# Initialize the Sentence-Transformer model
+model = SentenceTransformer('sentence-transformers/multi-qa-MiniLM-L6-cos-v1')
+
+# Define a function to generate embeddings
+def generate_embeddings(text_data):
+    embeddings = model.encode(text_data, convert_to_tensor=False)
+    return embeddings
+
+# Convert sample data to list of combined reviewText + summary
+sample_text_data = [row['reviewText'] + " " + row['summary'] for row in sample_data]
+
+# Generate embeddings for the sample text
+embeddings = generate_embeddings(sample_text_data)
+
+# Print the embeddings (first 5 values for each embedding)
+print("\nSample Embeddings:")
+for i, embedding in enumerate(embeddings):
+    print(f"Embedding for row {i + 1}: {embedding[:5]}...")
+
+# Initialize Weaviate client
+client = weaviate.Client(url="http://50.18.99.196:8080")
+
+# Create schema
+schema = {
+    "class": "Review",
+    "vectorizer": "none",  # Using pre-computed embeddings
+    "properties": [
+        {
+            "name": "reviewText",
+            "dataType": ["text"]
+        },
+        {
+            "name": "summary",
+            "dataType": ["text"]
+        }
+    ]
+}
+
+# Create schema if it doesn't exist
+if not client.schema.exists("Review"):
+    client.schema.create_class(schema)
+
+# Add the two sample documents with their embeddings
+print("\nIndexing documents in Weaviate:")
+for i, (row, embedding) in enumerate(zip(sample_data, embeddings)):
+    data_object = {
+        "reviewText": row['reviewText'],
+        "summary": row['summary']
+    }
+    
+    # Add to Weaviate
+    try:
+        client.data_object.create(
+            class_name="Review",
+            data_object=data_object,
+            vector=embedding.tolist()  # Convert numpy array to list
+        )
+        print(f"Successfully added document {i+1}")
+    except Exception as e:
+        print(f"Error adding document {i+1}: {str(e)}")
+
+# Verify the data was added
+result = client.query.aggregate("Review").with_meta_count().do()
+print("\nTotal objects in Weaviate:", result['data']['Aggregate']['Review'][0]['meta']['count'])
+
+# Test search functionality
+print("\nTesting search functionality:")
+test_query = sample_data[0]['reviewText']  # Use first review as test query
+query_embedding = generate_embeddings([test_query])[0]
+
+# Search for similar reviews
+result = (
+    client.query
+    .get("Review", ["reviewText", "summary"])
+    .with_near_vector({
+        "vector": query_embedding.tolist()
+    })
+    .with_limit(2)
+    .do()
+)
+
+# Print search results
+print("\nSearch Results:")
+for i, review in enumerate(result['data']['Get']['Review']):
+    print(f"\nResult {i+1}:")
+    print(f"Summary: {review['summary']}")
+    print(f"Review: {review['reviewText']}")
+
+
+# COMMAND ----------
+
+import weaviate
+
+# Initialize Weaviate client
+client = weaviate.Client(url="http://50.18.99.196:8080")
+
+# Define a simple schema for the test class
+test_schema = {
+    "class": "TestClass",
+    "vectorizer": "none",  # No vectorizer for this test
+    "properties": [
+        {
+            "name": "testField",
+            "dataType": ["text"]
+        }
+    ]
+}
+
+# Create the class in Weaviate schema
+try:
+    if not client.schema.exists("TestClass"):
+        client.schema.create_class(test_schema)
+        print("Test class 'TestClass' created successfully!")
+    else:
+        print("Test class 'TestClass' already exists.")
+except Exception as e:
+    print(f"Error creating 'TestClass': {str(e)}")
+
+# Verify the schema exists
+try:
+    schema = client.schema.get()
+    if any(cls["class"] == "TestClass" for cls in schema["classes"]):
+        print("Connection verified: 'TestClass' exists in the schema.")
+    else:
+        print("Connection failed: 'TestClass' does not exist in the schema.")
+except Exception as e:
+    print(f"Error verifying connection: {str(e)}")
